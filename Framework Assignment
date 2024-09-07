@@ -1,0 +1,125 @@
+# Entity-Framework-
+public class InsuranceQuote
+{
+    public decimal BaseRate { get; set; } = 50m;
+    public decimal Total { get; set; }
+
+    public decimal CalculateMonthlyTotal(int age, int carYear, string carMake, string carModel, int speedingTickets, bool hasDui, bool fullCoverage)
+    {
+        // Base rate
+        Total = BaseRate;
+
+        // Age-based adjustment
+        if (age <= 18)
+        {
+            Total += 100;
+        }
+        else if (age >= 19 && age <= 25)
+        {
+            Total += 50;
+        }
+        else if (age >= 26)
+        {
+            Total += 25;
+        }
+
+        // Car year adjustment
+        if (carYear < 2000)
+        {
+            Total += 25;
+        }
+        else if (carYear > 2015)
+        {
+            Total += 25;
+        }
+
+        // Car make and model adjustment
+        if (carMake == "Porsche")
+        {
+            Total += 25;
+            if (carModel == "911 Carrera")
+            {
+                Total += 25;
+            }
+        }
+
+        // Speeding tickets adjustment
+        Total += speedingTickets * 10;
+
+        // DUI adjustment
+        if (hasDui)
+        {
+            Total *= 1.25m;
+        }
+
+        // Full coverage adjustment
+        if (fullCoverage)
+        {
+            Total *= 1.50m;
+        }
+
+        return Total;
+    }
+}
+<!-- Remove or comment out the quote input field -->
+<!-- <input type="text" asp-for="Quote" /> -->
+@model IEnumerable<InsuranceQuoteModel>
+
+<h2>Admin Quotes</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>Email</th>
+            <th>Quote</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var quote in Model)
+        {
+            <tr>
+                <td>@quote.FirstName</td>
+                <td>@quote.LastName</td>
+                <td>@quote.Email</td>
+                <td>@quote.Quote</td>
+            </tr>
+        }
+    </tbody>
+</table>
+public class InsuranceQuoteModel
+{
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Email { get; set; }
+    public decimal Quote { get; set; }
+}
+public class AdminController : Controller
+{
+    private readonly ApplicationDbContext _context;
+
+    public AdminController(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    public IActionResult Quotes()
+    {
+        var quotes = _context.Insurees
+            .Select(i => new InsuranceQuoteModel
+            {
+                FirstName = i.FirstName,
+                LastName = i.LastName,
+                Email = i.Email,
+                Quote = i.Quote
+            })
+            .ToList();
+
+        return View(quotes);
+    }
+}
+/path/to/your/project/App_Data/
+git add .
+git commit -m "Implemented insurance quote calculation and updated views"
+git push origin main
